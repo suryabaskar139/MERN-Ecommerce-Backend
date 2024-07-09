@@ -7,5 +7,5 @@ dotenv.config({path: path.join(__dirname,"config","config.env")});
 connectDatabase();
 
 app.listen(process.env.PORT,() => {
-    console.log(`Server Listening to the PORT : ${process.env.PORT}`);
+    console.log(`Server Listening to the PORT : ${process.env.PORT} in ${process.env.NODE_ENV}`);
 })
