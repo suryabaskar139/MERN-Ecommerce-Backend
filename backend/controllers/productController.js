@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const productModel = require("../models/productModel");
 const ErrorHandler = require("../utils/errorHandler");
+const catchAsyncError = require("../middlewares/catchAsyncError");
 
 
 
@@ -13,20 +15,27 @@ exports.getProducts = async(req,res,next) => {
     })
 }
 
-exports.addProducts = async(req,res,next) => {
+exports.addProducts = catchAsyncError(async(req,res,next) => {
     const product = await productModel.create(req.body);
     res.status(201).json({
         message : "Product created successfully",
         success : true,
         product
     })
-}
+})
 
 exports.getSingleProduct = async(req,res,next) => {
+
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return next(new ErrorHandler('Invalid product ID', 400));
+    }
+
     const product = await productModel.findById(req.params.id);
 
     if(!product){
-        return next(ErrorHandler('Product not found',400));
+        return next(new ErrorHandler('Product not found',400));
     }
 
     res.status(200).json({
