@@ -2,11 +2,16 @@ const mongoose = require('mongoose');
 const productModel = require("../models/productModel");
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncError = require("../middlewares/catchAsyncError");
+const APIFeatures = require('../utils/apiFeatures');
 
 
 
 exports.getProducts = async(req,res,next) => {
-    const products = await productModel.find();
+    console.log('req',req.query);
+    let apiFeatures = APIFeatures(productModel.find(),req.query);
+    apiFeatures = apiFeatures.search().filter();
+
+    const products = await apiFeatures.query;
     res.status(200).json({
         success: true,
         message:"All Products",
