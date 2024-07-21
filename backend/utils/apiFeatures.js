@@ -8,7 +8,7 @@ const APIFeatures = (query, queryStr) => {
         } : {};
 
         query = query.find({ ...keyword });
-        return { query, queryStr, search, filter };
+        return { query, queryStr, search, filter, paginate };
     };
 
     const filter = () => {
@@ -16,11 +16,38 @@ const APIFeatures = (query, queryStr) => {
 
         const removeFields = ['keyword', 'limit', 'page'];
         removeFields.forEach(field => delete queryStrCopy[field]);
-        query = query.find(queryStrCopy);
-        return { query, queryStr, search, filter };
+        let queStr = JSON.stringify(queryStrCopy);
+        queStr =  queStr.replace(/\b(gt|gte|lt|lte)/g, match => `$${match}`)
+        console.log(JSON.parse(queStr));
+
+        query = query.find(JSON.parse(queStr));
+        return { query, queryStr, search, filter, paginate };
     };
 
-    return { query, queryStr, search, filter };
+    const paginate = (responsePerPage) => {
+
+        const currentPage = Number(queryStr.page) || 1;
+
+        const skip = responsePerPage * (currentPage - 1);
+        query = query.limit(responsePerPage).skip(skip);
+
+        // if  ?page=1 query parameter -> it will give per page 3 records 
+        // if we wont give query parameter -> it will give per page 3 records 
+        // if we want all records when we won't give query parameter uncomment above code comment below code
+
+        if (currentPage) {
+            const skip = responsePerPage * (currentPage - 1);
+            query = query.limit(responsePerPage).skip(skip);
+          } else {
+            query = query; // no limit or skip
+          }
+
+        return { query, queryStr, search, filter, paginate }
+
+
+    }
+
+    return { query, queryStr, search, filter, paginate };
 };
 
 module.exports = APIFeatures;

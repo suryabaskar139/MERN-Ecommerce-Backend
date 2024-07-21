@@ -8,8 +8,9 @@ const APIFeatures = require('../utils/apiFeatures');
 
 exports.getProducts = async(req,res,next) => {
     console.log('req',req.query);
+    const responsePerPage = 3; // per page products count
     let apiFeatures = APIFeatures(productModel.find(),req.query);
-    apiFeatures = apiFeatures.search().filter();
+    apiFeatures = apiFeatures.search().filter().paginate(responsePerPage);
 
     const products = await apiFeatures.query;
     res.status(200).json({
